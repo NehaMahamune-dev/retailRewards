@@ -4,11 +4,11 @@
 package com.retailer.rewardProgram.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -28,20 +28,13 @@ public class RewardService {
 
 	public Map<String, Integer> getRewards(String phoneNumber) {
 		Map<String, Integer> rewards = new HashMap<>();
-		LocalDate date = LocalDate.now();
-
-		for (int i = 0; i < 3; i++) {
-			YearMonth yearMonth = YearMonth.from(date.minusMonths(i));
-			LocalDate start = yearMonth.atDay(1);
-			LocalDate end = yearMonth.atEndOfMonth();
-
-			List<Transactions> transactions = transactionRepo.findByCustomer_phoneNumberAndDateBetween(phoneNumber,
-					start, end);
-
-			int points = transactions.stream().mapToInt(t -> calculatePoints(t.getAmount())).sum();
-			rewards.put(yearMonth.toString(), points);
-		}
-		return rewards;
+		List<Transactions> transactions = transactionRepo.findByCustomer_phoneNumber(phoneNumber);
+		rewards = transactions.stream().collect(Collectors.groupingBy(t -> t.getDate().getMonth().toString(),
+				Collectors.summingInt(t -> calculatePoints(t.getAmount()))));
+		int totalRewards = rewards.values().stream().mapToInt(Integer::intValue).sum();
+		Map<String, Integer> finalRewards = new LinkedHashMap<>(rewards);
+		finalRewards.put("Total", totalRewards);
+		return finalRewards;
 	}
 
 	private int calculatePoints(BigDecimal amount) {
