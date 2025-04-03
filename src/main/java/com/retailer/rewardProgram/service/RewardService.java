@@ -41,7 +41,7 @@ public class RewardService {
 			int points = transactions.stream().mapToInt(t -> calculatePoints(t.getAmount())).sum();
 			rewards.put(yearMonth.toString(), points);
 		}
-		return null;
+		return rewards;
 	}
 
 	private int calculatePoints(BigDecimal amount) {
