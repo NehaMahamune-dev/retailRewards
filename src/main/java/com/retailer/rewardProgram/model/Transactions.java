@@ -6,6 +6,8 @@ package com.retailer.rewardProgram.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +36,7 @@ public class Transactions {
 	private Long id;
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "customer_phoneNumber", referencedColumnName = "phoneNumber")
+	@JsonIgnore
 	private Customer customer;
 	private BigDecimal amount;
 	private LocalDate date;
